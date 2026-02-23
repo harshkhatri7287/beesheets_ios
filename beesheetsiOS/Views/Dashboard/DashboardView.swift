@@ -10,38 +10,45 @@ public struct DashboardView: View {
 
     public var body: some View {
         NavigationStack {
-            Group {
-                if viewModel.isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if let error = viewModel.error {
-                    VStack(spacing: 12) {
-                        Text("Failed to load dashboard")
-                            .font(.headline)
-                        Text(String(describing: error))
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        Button("Retry") {
-                            Task { await viewModel.load() }
-                        }
-                        .buttonStyle(.borderedProminent)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    ScrollView {
-                        VStack(spacing: 16) {
-                            GreetingSectionView(name: viewModel.dashboard?.user.fullName ?? "Guest")
-                            if let today = viewModel.todaySummary {
-                                TodaySummarySectionView(summary: today)
+            VStack(spacing: 0) {
+                DashboardNavigationBarView()
+
+                Group {
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else if let error = viewModel.error {
+                        VStack(spacing: 12) {
+                            Text("Failed to load dashboard")
+                                .font(.headline)
+                            Text(String(describing: error))
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            Button("Retry") {
+                                Task { await viewModel.load() }
                             }
-                            QuotaSectionView(leaveQuotas: viewModel.leaveQuotas, wfhQuota: viewModel.wfhQuota)
-                            QuickLinksSectionView(links: viewModel.quickLinks)
+                            .buttonStyle(.borderedProminent)
                         }
-                        .padding()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        ScrollView {
+                            VStack(spacing: 16) {
+                                GreetingSectionView(
+                                    title: viewModel.greetingSalutation,
+                                    subtitle: viewModel.greetingMessage
+                                )
+                                if let today = viewModel.todaySummary {
+                                    TodaySummarySectionView(summary: today)
+                                }
+                                QuotaSectionView(leaveQuotas: viewModel.leaveQuotas, wfhQuota: viewModel.wfhQuota)
+                                QuickLinksSectionView(links: viewModel.quickLinks)
+                            }
+                            .padding()
+                        }
                     }
                 }
             }
-            .navigationTitle("Dashboard")
+            .toolbar(.hidden, for: .navigationBar)
         }
         .task { await viewModel.load() }
     }

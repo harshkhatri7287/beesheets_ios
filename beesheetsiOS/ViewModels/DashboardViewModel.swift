@@ -32,9 +32,16 @@ public final class DashboardViewModel: ObservableObject {
     }
 
     // MARK: - View helpers
-    var greetingTitle: String {
-        guard let name = dashboard?.user.fullName else { return "Welcome" }
-        return "Good Morning, \(name)"
+    var greetingSalutation: String {
+        "Good Morning!"
+    }
+
+    var greetingName: String {
+        dashboard?.user.fullName ?? "Guest"
+    }
+
+    var greetingMessage: String {
+        "Welcome, \(greetingName)"
     }
 
     var todaySummary: TodaySummaryDTO? { dashboard?.todaySummary }
